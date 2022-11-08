@@ -21,6 +21,7 @@ class DataSetSegmentation(torch.utils.data.Dataset):
     def __init__(self, base_path):
         super(DataSetSegmentation, self).__init__()
         self.img_files = sorted(glob.glob(os.path.join(base_path, 'image', '*.png')))
+        self.gate = len(self.img_files)
         self.mask_files = []
         for img_path in self.img_files:
             self.mask_files.append(os.path.join(base_path, 'mask',
@@ -41,26 +42,26 @@ class DataSetSegmentation(torch.utils.data.Dataset):
         mask_path = self.mask_files[index]
 
         # load image data and normalization
-        data = imageio.imread(img_path).astype(np.float32) / 255.0
+        self.data = imageio.imread(img_path).astype(np.float32) / 255.0
 
-        if data.ndim == 2:
-            data = data[np.newaxis, :, :]
+        if self.data.ndim == 2:
+            self.data = self.data[np.newaxis, :, :]
         else:
-            data = data.transpose(2, 0, 1)
+            self.data = self.data.transpose(2, 0, 1)
 
-        # load label data
-        label = imageio.imread(mask_path).astype(np.float32)
+        # load label self.data
+        self.label = imageio.imread(mask_path).astype(np.float32)
 
-        if label.ndim == 3:  # RGB to gray-scale
-            label = 0.299 * label[:, :, 2]\
-                + 0.587 * label[:, :, 1]\
-                + 0.114 * label[:, :, 0]
+        if self.label.ndim == 3:  # RGB to gray-scale
+            self.label = 0.299 * self.label[:, :, 2]\
+                + 0.587 * self.label[:, :, 1]\
+                + 0.114 * self.label[:, :, 0]
 
-        label = (label > 0.0).astype(np.float32)[np.newaxis, :, :]
+        self.label = (self.label > 0.0).astype(np.float32)[np.newaxis, :, :]
 
-        # data augmentation
+        # self.data augmentation
 
-        return torch.from_numpy(data).float(), torch.from_numpy(label).float()
+        return torch.from_numpy(self.data).float(), torch.from_numpy(self.label).float()
 
     def __len__(self):
         return len(self.img_files)

@@ -19,7 +19,7 @@ import scipy.ndimage as ndimg
 from test_segmentation import *
 
 from dataset_segmentation import DataSetSegmentation
-from dataset_segmentation_inside import insideDataSetSegmentation
+from dataset_segmentation_inside import DataAugmentation
 from unet import Unet
 from attUnet import attUnet
 import dice
@@ -63,7 +63,8 @@ def training(training_data_path, validation_data_path, output_path,
     loss_log_file_name = f"{output_path}/loss_log_{time_stamp}_model:{model}.csv"
     model_file_name = f"{output_path}/model_best_{time_stamp}_model:{model}.pth"
 
-    training_dataset = insideDataSetSegmentation(training_data_path)
+    # DataAugmentation: augment inside, DataSetSegmentation: read pre-created images
+    training_dataset = DataSetSegmentation(training_data_path)
     print('len train:',len(training_dataset))
     training_loader = torch.utils.data.DataLoader(training_dataset,
                                                   batch_size=batch_size,
@@ -196,7 +197,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    for round in range(10):
+    for round in range(5):
         random.seed(time.time())
         r_lr = 10**random.randint(-5,-1)
         r_f = 2**random.randint(2,4)
