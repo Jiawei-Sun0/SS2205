@@ -14,6 +14,7 @@ import torch
 from overlay import *
 import dice
 from dataset_segmentation import DataSetSegmentation
+from dataset_segmentation_inside import DataAugmentation
 from unet import Unet
 from attUnet import attUnet
 import scipy.ndimage as ndimg
@@ -33,7 +34,7 @@ def labeling(outputs, labels, binarize_threshold):
 
 def test(test_data_path, model_file_name, output_path,
          binarize_threshold=0.5, gpu_id="0",
-         export_mask=False, time_stamp="", **kwargs):
+         export_mask=False, time_stamp="", model=1, **kwargs):
 
     if not os.path.isdir(test_data_path):
         print(f"Error: Path of test data ({test_data_path}) is not found.")
@@ -132,7 +133,7 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('--time_stamp', help='Time stamp for saved data',
                         type=str, default='')        
-    parser.add_argument('--model', help='Time stamp for saved data',
+    parser.add_argument('-mo','--model', help='Time stamp for saved data',
                         type=int, default=0)                   
 
     args = parser.parse_args()

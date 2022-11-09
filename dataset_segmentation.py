@@ -27,14 +27,14 @@ class DataSetSegmentation(torch.utils.data.Dataset):
             self.mask_files.append(os.path.join(base_path, 'mask',
                                                 os.path.basename(img_path)))
 
-        self.term = []
-        for i in sorted(glob.glob(os.path.join(base_path, 'image', 'aug', '*.png'))):
-            self.term.append(i)
-            self.img_files.append(i)
+        # self.term = []
+        # for i in sorted(glob.glob(os.path.join(base_path, 'image', 'aug', '*.png'))):
+        #     self.term.append(i)
+        #     self.img_files.append(i)
 
-        for img_path in self.term:
-            self.mask_files.append(os.path.join(base_path, 'mask', 'aug',
-                                                os.path.basename(img_path)))
+        # for img_path in self.term:
+        #     self.mask_files.append(os.path.join(base_path, 'mask', 'aug',
+        #                                         os.path.basename(img_path)))
 
 
     def __getitem__(self, index):

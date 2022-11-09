@@ -64,7 +64,7 @@ def training(training_data_path, validation_data_path, output_path,
     model_file_name = f"{output_path}/model_best_{time_stamp}_model:{model}.pth"
 
     # DataAugmentation: augment inside, DataSetSegmentation: read pre-created images
-    training_dataset = DataSetSegmentation(training_data_path)
+    training_dataset = DataAugmentation(training_data_path)
     print('len train:',len(training_dataset))
     training_loader = torch.utils.data.DataLoader(training_dataset,
                                                   batch_size=batch_size,
@@ -197,9 +197,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    for round in range(5):
+    for round in range(1):
         random.seed(time.time())
-        r_lr = 10**random.randint(-5,-1)
+        r_lr = 10**random.randint(-6,-2)
         r_f = 2**random.randint(2,4)
         r_beta = random.uniform(0.9,0.99)
         r_batch = 2**random.randint(1,3)
