@@ -22,6 +22,7 @@ from dataset_segmentation import DataSetSegmentation
 from dataset_segmentation_inside import DataAugmentation
 from unet import Unet
 from attUnet import attUnet
+from att_SE_Unet import attSEunet
 import dice
 
 
@@ -56,7 +57,7 @@ def training(training_data_path, validation_data_path, output_path,
 
     # Set ID of CUDA device
     device = f'cuda:{gpu_id}'
-    print(f"Device: {device} First_filter={first_filter_num} Beta={beta_1} LR={learning_rate} model={model} batch={batch_size} epoch_num={max_epoch_num}")
+    print(f"Device: {device} First_filter={first_filter_num} Beta={beta_1} LR={learning_rate} batch={batch_size} model={model} epoch_num={max_epoch_num}")
 
     if time_stamp == "":
             time_stamp = dt.now().strftime('%Y%m%d%H%M%S')
@@ -85,6 +86,8 @@ def training(training_data_path, validation_data_path, output_path,
         model = Unet(in_channels, out_channels, first_filter_num)
     elif model == 1:
         model = attUnet(in_channels, out_channels, first_filter_num)
+    elif model == 2:
+        model = attSEunet(in_channels, out_channels, first_filter_num)
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(),
@@ -197,7 +200,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    for round in range(1):
+    for round in range(10):
         random.seed(time.time())
         r_lr = 10**random.randint(-6,-2)
         r_f = 2**random.randint(2,4)
