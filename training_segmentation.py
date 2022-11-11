@@ -105,6 +105,10 @@ def training(training_data_path, validation_data_path, output_path,
     with open(loss_log_file_name,'a') as f:
         f.write(f"First_filter={first_filter_num} Beta={beta_1} LP={learning_rate} batch={batch_size} epoch_num={max_epoch_num}\n")
     
+    previous = 0
+    count = 0
+    earlystop = 10
+
     for epoch in range(max_epoch_num):
         training_loss = 0
         validation_loss = 0
@@ -147,7 +151,6 @@ def training(training_data_path, validation_data_path, output_path,
                 validation_loss += loss.item()
 
         avg_validation_loss = validation_loss / (batch_idx + 1)
-
         saved_str = ""
 
         if best_validation_loss > avg_validation_loss:
@@ -162,6 +165,16 @@ def training(training_data_path, validation_data_path, output_path,
         with open(loss_log_file_name, "a") as fp:
             fp.write("%d,%.4f,%.4f,%.4f\n" %
                     (epoch + 1, avg_training_loss, avg_validation_loss, np.mean(eval_vals)))
+        if previous == avg_validation_loss:
+            count += 1
+        else:
+            count = 0
+        if count >= earlystop:
+            fp.write(f"Because the val_loss didn't change during {earlystop} epoches. Program was stopped")
+            return model_file_name
+        previous = avg_validation_loss
+        
+        
 
     return model_file_name
 
@@ -200,25 +213,24 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    for round in range(10):
-        random.seed(time.time())
-        r_lr = 10**random.randint(-6,-2)
-        r_f = 2**random.randint(2,4)
-        r_beta = random.uniform(0.9,0.99)
-        r_batch = 2**random.randint(1,3)
-        print('Round:',round+1)
-        training(args.training_data_path,
-             args.validation_data_path,
-             args.output_path,
-             r_f,
-             r_lr,
-             r_beta,
-             r_batch,
-             args.max_epoch_num,
-             args.binarize_threshold,
-             args.gpu_id,
-             args.model,
-             args.time_stamp)
+    random.seed(time.time())
+    r_lr = 10**random.randint(-6,-2)
+    r_f = 2**random.randint(2,5)
+    r_beta = random.uniform(0.9,0.99)
+    r_batch = 2**random.randint(1,3)
+    print('Round:',round+1)
+    training(args.training_data_path,
+            args.validation_data_path,
+            args.output_path,
+            r_f,
+            r_lr,
+            r_beta,
+            r_batch,
+            args.max_epoch_num,
+            args.binarize_threshold,
+            args.gpu_id,
+            args.model,
+            args.time_stamp)
 
 # python training_segmentation.py training/ validation/ output/
 # best para without Att: First_filter=16 Beta=0.9693796803178418 LP=0.0001 batch=2
