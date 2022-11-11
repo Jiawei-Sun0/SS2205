@@ -7,21 +7,21 @@ import torch
 import torch.nn as nn
 
 class SELayer(nn.Module):
-    def __init__(self, channel, reduction=16):
+    def __init__(self, channel, reduction=4):
         super(SELayer, self).__init__()
         self.chan = channel
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(
-            nn.Linear(channel, channel // reduction, bias=False),
+            nn.Linear(channel, channel // reduction, bias=False), # fliter_size<16 mey have tensor size 0
             nn.ReLU(inplace=True),
-            nn.Linear(channel // reduction, channel, bias=False),
+            nn.Linear(channel // reduction, channel, bias=False), 
             nn.Sigmoid()
         )
     def forward(self, x):
         b, c, _, _ = x.size()
-        y = self.avg_pool(x).view(b, c) #对应Squeeze操作
+        y = self.avg_pool(x).view(b, c) # Squeeze
         y = self.fc(y)
-        y = y.view(b, c, 1, 1) #对应Excitation操作
+        y = y.view(b, c, 1, 1) # Excitation
         return x * y.expand_as(x)
 
 class Attention_block(nn.Module):
