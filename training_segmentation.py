@@ -20,6 +20,7 @@ from test_segmentation import *
 
 from dataset_segmentation import DataSetSegmentation
 from dataset_segmentation_inside import DataAugmentation
+from att_Unet_plus import NestedUNet
 from unet import Unet
 from attUnet import attUnet
 from att_SE_Unet import attSEunet
@@ -88,6 +89,8 @@ def training(training_data_path, validation_data_path, output_path,
         model = attUnet(in_channels, out_channels, first_filter_num)
     elif model == 2:
         model = attSEunet(in_channels, out_channels, first_filter_num)
+    elif model == 3:
+        model = NestedUNet(in_channels, out_channels, first_filter_num)
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(),
@@ -144,7 +147,6 @@ def training(training_data_path, validation_data_path, output_path,
 
                 outputs = model(data)
                 out_mask, label_img = labeling(outputs,labels,binarize_threshold)
-
                 dice_coeff_arr[batch_idx] = dice.dice_numpy(out_mask, label_img)
 
                 loss = criterion_D(outputs, labels)
@@ -215,10 +217,9 @@ if __name__ == '__main__':
 
     random.seed(time.time())
     r_lr = 10**random.randint(-6,-2)
-    r_f = 2**random.randint(2,5)
+    r_f = 2**random.randint(2,4)
     r_beta = random.uniform(0.9,0.99)
     r_batch = 2**random.randint(1,3)
-    print('Round:',round+1)
     training(args.training_data_path,
             args.validation_data_path,
             args.output_path,
