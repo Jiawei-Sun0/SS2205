@@ -30,10 +30,6 @@ class conv_block_nested(nn.Module):
 #Nested Unet
 
 class NestedUNet(nn.Module):
-    """
-    Implementation of this paper:
-    https://arxiv.org/pdf/1807.10165.pdf
-    """
     def __init__(self, in_ch=3, out_ch=1, first_filter_num=64):
         super(NestedUNet, self).__init__()
 
@@ -41,7 +37,7 @@ class NestedUNet(nn.Module):
         filters = [n1, n1 * 2, n1 * 4, n1 * 8, n1 * 16]
 
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.Up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.Up = nn.Upsample(scale_factor=2)
 
         self.conv0_0 = conv_block_nested(in_ch, filters[0], filters[0])
         self.conv1_0 = conv_block_nested(filters[0], filters[1], filters[1])
