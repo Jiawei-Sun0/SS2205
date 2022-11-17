@@ -19,8 +19,8 @@ import scipy.ndimage as ndimg
 from test_segmentation import *
 
 from dataset_segmentation import DataSetSegmentation
-from dataset_segmentation_inside import DataAugmentation
-from att_Unet_plus import NestedUNet
+from dataset_seg_aug import DataAugmentation
+from Unet_plus import NestedUNet
 from unet import Unet
 from attUnet import attUnet
 from att_SE_Unet import attSEunet
