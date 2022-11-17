@@ -18,12 +18,14 @@ import random
 import scipy.ndimage as ndimg
 from test_segmentation import *
 
+import diceCE
 from dataset_segmentation import DataSetSegmentation
-from dataset_segmentation_inside import DataAugmentation
-from att_Unet_plus import NestedUNet
+from dataset_seg_aug import DataAugmentation
+from ss2205.twoCH_dataset_aug import twoCH
 from unet import Unet
 from attUnet import attUnet
 from att_SE_Unet import attSEunet
+from Unet_plus import NestedUNet
 import dice
 
 
@@ -33,7 +35,6 @@ def training(training_data_path, validation_data_path, output_path,
              gpu_id="0", model=0, time_stamp=""):
 
     # Fix seed
-
     seed_num = 234567
     os.environ['PYTHONHASHSEED'] = '0'
     rn.seed(seed_num)
@@ -71,7 +72,7 @@ def training(training_data_path, validation_data_path, output_path,
     training_loader = torch.utils.data.DataLoader(training_dataset,
                                                   batch_size=batch_size,
                                                   shuffle=True)
-
+                                                  
     validation_dataset = DataSetSegmentation(validation_data_path)
     print('len validation:',len(validation_dataset))
     validation_loader = torch.utils.data.DataLoader(validation_dataset,
@@ -92,14 +93,17 @@ def training(training_data_path, validation_data_path, output_path,
     elif model == 3:
         model = NestedUNet(in_channels, out_channels, first_filter_num)
     model = model.to(device)
-
+    # with open('./paras.csv','w') as f:
+    #     for txt in model.parameters():
+    #         f.write(str(txt)+'\n')
+    
     optimizer = optim.Adam(model.parameters(),
                             lr=learning_rate,
                             betas=(beta_1, 0.999))
     # optimizer = optim.SGD(model.parameters(),
     #                        lr=learning_rate)
     criterion_D = dice.DiceLoss()
-    # criterion_CE = torch.nn.CrossEntropyLoss()
+    # criterion_D = diceCE.DiceCELoss()
 
     # training
     best_validation_loss = float('inf')
@@ -167,14 +171,14 @@ def training(training_data_path, validation_data_path, output_path,
         with open(loss_log_file_name, "a") as fp:
             fp.write("%d,%.4f,%.4f,%.4f\n" %
                     (epoch + 1, avg_training_loss, avg_validation_loss, np.mean(eval_vals)))
-        if previous == avg_validation_loss:
-            count += 1
-        else:
-            count = 0
-        if count >= earlystop:
-            fp.write(f"Because the val_loss didn't change during {earlystop} epoches. Program was stopped")
-            return model_file_name
-        previous = avg_validation_loss
+            if abs(previous - avg_validation_loss) < 0.001: # condition of early stop
+                count += 1
+            else:
+                count = 0
+            if count >= earlystop:
+                fp.write(f"Because the val_loss didn't change during {earlystop} epoches. Program was stopped.")
+                return model_file_name
+            previous = avg_validation_loss
         
         
 
@@ -209,13 +213,13 @@ if __name__ == '__main__':
                         type=float, default=0.5)
     parser.add_argument('-mo', '--model',
                         help='Threshold to binarize outputs',
-                        type=int, default=1)
+                        type=int, default=0)
     parser.add_argument('--time_stamp', help='Time stamp for saved data',
                         type=str, default='')
 
     args = parser.parse_args()
 
-    random.seed(time.time())
+    # random.seed(time.time())
     r_lr = 10**random.randint(-6,-2)
     r_f = 2**random.randint(2,4)
     r_beta = random.uniform(0.9,0.99)
