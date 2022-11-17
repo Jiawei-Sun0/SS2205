@@ -167,7 +167,7 @@ def training(training_data_path, validation_data_path, output_path,
         with open(loss_log_file_name, "a") as fp:
             fp.write("%d,%.4f,%.4f,%.4f\n" %
                     (epoch + 1, avg_training_loss, avg_validation_loss, np.mean(eval_vals)))
-        if if abs(previous - avg_validation_loss) < 0.001:
+        if abs(previous - avg_validation_loss) < 0.001:
             count += 1
         else:
             count = 0
