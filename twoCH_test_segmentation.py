@@ -100,6 +100,7 @@ def test(test_data_path, model_file_name, output_path,
 
             data = org_data.to(device)
             outputs = model(data)
+            outputs = torch.softmax(outputs,dim=1)
             for i in range(outputs.shape[1]):
                 out_mask, label_img = labeling(outputs[:,i][:,np.newaxis,:,:],org_labels[:,i][:,np.newaxis,:,:],binarize_threshold)
                 dice_coeff_arr[i][batch_idx] = dice.dice_numpy(out_mask, label_img)
@@ -114,8 +115,8 @@ def test(test_data_path, model_file_name, output_path,
                     fp.write(f"{batch_idx},ch{i},{dice_coeff_arr[i][batch_idx]:.4f}\n")
     eval_vals = dice_coeff_arr
     with open(result_file_name,'a') as fp:
-        fp.write("Mean of Dice coefficient: %.4f (%.4f - %.4f)" %
-          (np.mean(eval_vals), np.min(eval_vals), np.max(eval_vals)))
+        fp.write("Mean of Dice coefficient: ch0:%.4f (%.4f - %.4f) ch1:%.4f (%.4f - %.4f)" %
+          (np.mean(eval_vals[0]), np.min(eval_vals[0]), np.max(eval_vals[0]), np.mean(eval_vals[1]), np.min(eval_vals[1]), np.max(eval_vals[1])))
 
     return dice_coeff_arr
 
@@ -135,7 +136,7 @@ if __name__ == '__main__':
                         type=int, default=16)
     parser.add_argument('-t', '--binarize_threshold',
                         help='Threshold to binarize outputs',
-                        type=float, default=0.5)
+                        type=float, default=0.55)
     parser.add_argument('--export_mask',
                         help='Export output mask as png file',
                         action='store_true')
@@ -158,7 +159,7 @@ if __name__ == '__main__':
                      args.model,
                      **hyperparameters_dict)
 
-    print("Mean of Dice coefficient: %.4f (%.4f - %.4f)" %
-          (np.mean(eval_vals), np.min(eval_vals), np.max(eval_vals)))
+    print("Mean of Dice coefficient: ch0:%.4f (%.4f - %.4f) ch1:%.4f (%.4f - %.4f)" %
+          (np.mean(eval_vals[0]), np.min(eval_vals[0]), np.max(eval_vals[0]), np.mean(eval_vals[1]), np.min(eval_vals[1]), np.max(eval_vals[1])))
 
-# python twoCH_test_segmentation.py sun_2ch/validation/ output/models/model_best_20221117155558_model:0_2ch.pth output/ --export_mask -f ??
+# python twoCH_test_segmentation.py sun_2ch/validation/ output/models/model_best_20221117155558_model:0_2ch.pth output/ --export_mask -f ?

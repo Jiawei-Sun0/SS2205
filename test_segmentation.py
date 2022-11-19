@@ -14,7 +14,7 @@ import torch
 from overlay import *
 import dice
 from dataset_segmentation import DataSetSegmentation
-from dataset_segmentation_inside import DataAugmentation
+from dataset_seg_aug import DataAugmentation
 from unet import Unet
 from attUnet import attUnet
 import scipy.ndimage as ndimg

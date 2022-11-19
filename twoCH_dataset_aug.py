@@ -68,16 +68,15 @@ class twoCH(torch.utils.data.Dataset):
         # 分割不同颜色label为labels->分别转换为二值-> || =>数据增强（2,480,640）
         # loss/dice问题：如果不能直接用就分割channel然后平均
         # test输出问题：分成两张输出
-        # git branch->2channel 
+        # git branch->2channel
         # dice + crossentropyloss
         
-        final = np.zeros((2,self.label.shape[0],self.label.shape[1],self.label.shape[2]))
-        self.outLabel = np.zeros((2,self.label.shape[0],self.label.shape[1]))
+        final = np.zeros((2,self.label.shape[0],self.label.shape[1]))
 
         mask = (self.label == [255,200,0,255]).all(axis=2)
-        final[0][mask] = [255,200,0,255]
+        final[0][mask] = 1 # if turn [255,200,0,255] this to 1, need change final dim, and return object
         mask = (self.label == [200,0,0,255]).all(axis=2)
-        final[1][mask] = [200,0,0,255]
+        final[1][mask] = 1
         # FOR LOOP IS TOO SLOW
         # for i in range(self.label.shape[0]):
         #     for j in range(self.label.shape[1]):
@@ -87,16 +86,16 @@ class twoCH(torch.utils.data.Dataset):
         #             final[1,i,j,:] = [200,0,0,255]
         
 
-        for i in range(final.shape[0]):
-            if final[i].ndim == 3:  # RGB to gray-scale
-                self.outLabel[i] = 0.299 * final[i, :, :, 2]\
-                    + 0.587 * final[i, :, :, 1]\
-                    + 0.114 * final[i, :, :, 0]
-            self.outLabel[i] = (self.outLabel[i] > 0.0).astype(np.float32)
-            imageio.imwrite('./testdata/mask'+str(index)+'no'+str(i)+'.png',self.outLabel[i].astype(np.uint8)*255)
+        # for i in range(final.shape[0]):
+        #     if final[i].ndim == 3:  # RGB to gray-scale
+        #         self.outLabel[i] = 0.299 * final[i, :, :, 2]\
+        #             + 0.587 * final[i, :, :, 1]\
+        #             + 0.114 * final[i, :, :, 0]
+        #     self.outLabel[i] = (self.outLabel[i] > 0.0).astype(np.float32)
+        #     imageio.imwrite('./sample/mask'+str(index)+'no'+str(i)+'.png',final[i].astype(np.uint8)*255)
         # print(torch.from_numpy(self.data).float().shape,torch.from_numpy(self.outLabel).float().shape)
-
-        return torch.from_numpy(self.data).float(), torch.from_numpy(self.outLabel).float()
+        self.outLabel = final
+        return torch.from_numpy(self.data).float(), torch.from_numpy(final).float()
     def __len__(self):
         return len(self.img_files)
 
