@@ -17,6 +17,8 @@ from dataset_segmentation import DataSetSegmentation
 from dataset_seg_aug import DataAugmentation
 from unet import Unet
 from attUnet import attUnet
+from att_SE_Unet import attSEunet
+from Unet_plus import NestedUNet
 import scipy.ndimage as ndimg
 
 def labeling(outputs, labels, binarize_threshold):
@@ -68,6 +70,10 @@ def test(test_data_path, model_file_name, output_path,
         model = Unet(in_channels, out_channels, first_filter_num)
     elif model == 1:
         model = attUnet(in_channels, out_channels, first_filter_num)
+    elif model == 2:
+        model = attSEunet(in_channels, out_channels, first_filter_num)
+    elif model == 3:
+        model = NestedUNet(in_channels, out_channels, first_filter_num)
 
     # Load the parameter of model
     model.load_state_dict(torch.load(model_file_name, map_location=device))

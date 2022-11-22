@@ -115,8 +115,8 @@ def test(test_data_path, model_file_name, output_path,
                     fp.write(f"{batch_idx},ch{i},{dice_coeff_arr[i][batch_idx]:.4f}\n")
     eval_vals = dice_coeff_arr
     with open(result_file_name,'a') as fp:
-        fp.write("Mean of Dice coefficient: ch0:%.4f (%.4f - %.4f) ch1:%.4f (%.4f - %.4f)" %
-          (np.mean(eval_vals[0]), np.min(eval_vals[0]), np.max(eval_vals[0]), np.mean(eval_vals[1]), np.min(eval_vals[1]), np.max(eval_vals[1])))
+        fp.write("Mean of Dice coefficient: ch0:%.4f (%.4f - %.4f) ch1:%.4f (%.4f - %.4f) totalAVG:%.4f" %
+          (np.mean(eval_vals[0]), np.min(eval_vals[0]), np.max(eval_vals[0]), np.mean(eval_vals[1]), np.min(eval_vals[1]), np.max(eval_vals[1]), np.mean(eval_vals)))
 
     return dice_coeff_arr
 

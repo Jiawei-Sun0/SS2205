@@ -30,7 +30,7 @@ import dice
 def training(training_data_path, validation_data_path, output_path,
              first_filter_num=64, learning_rate=0.001, beta_1=0.99,
              batch_size=16, max_epoch_num=50,binarize_threshold=0.5,
-             gpu_id="0", model=0, time_stamp=""):
+             gpu_id="0", model=0, augmentation=0, time_stamp=""):
 
     # Fix seed
 
@@ -62,11 +62,14 @@ def training(training_data_path, validation_data_path, output_path,
 
     if time_stamp == "":
             time_stamp = dt.now().strftime('%Y%m%d%H%M%S')
-    loss_log_file_name = f"{output_path}/loss_log_{time_stamp}_model:{model}.csv"
-    model_file_name = f"{output_path}/model_best_{time_stamp}_model:{model}.pth"
+    loss_log_file_name = f"{output_path}/csvFiles/loss_log_{time_stamp}_model:{model}_aug:{augmentation}.csv"
+    model_file_name = f"{output_path}/models/model_best_{time_stamp}_model:{model}_aug:{augmentation}.pth"
 
     # DataAugmentation: augment inside, DataSetSegmentation: read pre-created images
-    training_dataset = DataAugmentation(training_data_path)
+    if augmentation == 0:
+        training_dataset = DataSetSegmentation(training_data_path)
+    elif augmentation == 1:
+        training_dataset = DataAugmentation(training_data_path)
     print('len train:',len(training_dataset))
     training_loader = torch.utils.data.DataLoader(training_dataset,
                                                   batch_size=batch_size,
@@ -210,6 +213,9 @@ if __name__ == '__main__':
     parser.add_argument('-mo', '--model',
                         help='Threshold to binarize outputs',
                         type=int, default=1)
+    parser.add_argument('-a', '--augmentation',
+                        help='Threshold to binarize outputs',
+                        type=int, default=0)
     parser.add_argument('--time_stamp', help='Time stamp for saved data',
                         type=str, default='')
 
@@ -231,6 +237,7 @@ if __name__ == '__main__':
             args.binarize_threshold,
             args.gpu_id,
             args.model,
+            args.augmentation,
             args.time_stamp)
 
 # python training_segmentation.py training/ validation/ output/

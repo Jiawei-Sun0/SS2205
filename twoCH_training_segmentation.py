@@ -61,7 +61,7 @@ def training(training_data_path, validation_data_path, output_path,
 
     if time_stamp == "":
             time_stamp = dt.now().strftime('%Y%m%d%H%M%S')
-    loss_log_file_name = f"{output_path}/cvsFiles/loss_log_{time_stamp}_model:{model}_aug:{augmentation}_2ch.csv"
+    loss_log_file_name = f"{output_path}/csvFiles/loss_log_{time_stamp}_model:{model}_aug:{augmentation}_2ch.csv"
     model_file_name = f"{output_path}/models/model_best_{time_stamp}_model:{model}_aug:{augmentation}_2ch.pth"
 
     # DataAugmentation: augment inside, DataSetSegmentation: read pre-created images
@@ -148,8 +148,9 @@ def training(training_data_path, validation_data_path, output_path,
                 data, labels = data.to(device), labels.to(device)
 
                 outputs = model(data)
-                for i in range(outputs.shape[1]):
-                    out_mask, label_img = labeling(outputs[:,i][:,np.newaxis,:,:],labels[:,i][:,np.newaxis,:,:],binarize_threshold)
+                outmask = torch.softmax(outputs,dim=1)
+                for i in range(outmask.shape[1]):
+                    out_mask, label_img = labeling(outmask[:,i][:,np.newaxis,:,:],labels[:,i][:,np.newaxis,:,:],binarize_threshold)
                     dice_coeff_arr[i][batch_idx] = dice.dice_numpy(out_mask, label_img)
 
                 loss = criterion_D(outputs, labels)
@@ -169,8 +170,8 @@ def training(training_data_path, validation_data_path, output_path,
             np.mean(eval_vals[0]), np.min(eval_vals[0]), np.max(eval_vals[0]),
             np.mean(eval_vals[1]), np.min(eval_vals[1]), np.max(eval_vals[1])))
         with open(loss_log_file_name, "a") as fp:
-            fp.write("%d,%.4f,%.4f,%.4f\n" %
-                    (epoch + 1, avg_training_loss, avg_validation_loss, np.mean(eval_vals)))
+            fp.write("%d,%.4f,%.4f,%.4f,%.4f\n" %
+                    (epoch + 1, avg_training_loss, avg_validation_loss, np.mean(eval_vals[0]), np.mean(eval_vals[1])))
             if abs(previous - avg_validation_loss) < 0.0001: # condition of early stop
                 count += 1
             else:
@@ -210,7 +211,7 @@ if __name__ == '__main__':
                         type=int, default=50)
     parser.add_argument('-t', '--binarize_threshold',
                         help='Threshold to binarize outputs',
-                        type=float, default=0.5)
+                        type=float, default=0.55)
     parser.add_argument('-mo', '--model',
                         help='Threshold to binarize outputs',
                         type=int, default=0)
@@ -223,8 +224,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # random.seed(time.time())
-    r_lr = 10**random.randint(-6,-2)
     r_f = 2**random.randint(2,4)
+    r_lr = 10**random.randint(-6,-2)
     r_beta = random.uniform(0.9,0.99)
     r_batch = 2**random.randint(1,3)
     training(args.training_data_path,

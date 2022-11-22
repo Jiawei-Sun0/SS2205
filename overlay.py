@@ -16,7 +16,7 @@ def overlay(pre,mask,ori):
     # img = create_color(img,0,0,255)
     b_mask = np.tile(mask, (3,1,1))
     b_mask = np.transpose(b_mask, (1,2,0))
-    mask = create_color(mask,255,255,255)
+    mask = create_color(mask,0,255,255)
 
     b_pre = np.tile(pre, (3,1,1))
     b_pre = np.transpose(b_pre, (1,2,0))
