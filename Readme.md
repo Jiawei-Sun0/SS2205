@@ -69,16 +69,14 @@ U-Netによる喉頭内視鏡画像の声帯(声門)抽出。セグメンテー�
 
 - 出力ファイル
   - loss_log_{time_stamp}_model:{model}_aug:{augmentation}(_2ch).csv
-    - 各エポックでの学習データと検証用データに対する損失関数の出力が書かれています(CSV形式)。このデータを使うことで学習曲線を描きました。
   - model_best_{time_stamp}_model:{model}_aug:{augmentation}(_2ch).pth
-    - 学習後のモデルデータです。検証用データに対する損失関数の出力が最小となったエポックでのモデルが保存されます。
 
 ## テスト方法
 
 テストは `test_segmentation.py`もしくは`twoCH_test_segmentation.py` を使用します。コマンドの使い方は以下の通りです。
 
      $ python test_segmentation.py [テスト用データのパス名] [モデルのファイル名] [出力のパス名] (オプション) 
-     $ python test_segmentation.py [テスト用データのパス名] [モデルのファイル名] [出力のパス名] (オプション)
+     $ python twoCH_test_segmentation.py [テスト用データのパス名] [モデルのファイル名] [出力のパス名] (オプション)
 
 - オプションについて
   - `--gpu_id (-g)`: GPU ID。複数GPU搭載のマシンを使用しない場合は設定不要(デフォルトの0を指定)。詳細は各研究室の先輩、教員に聞いてください。
